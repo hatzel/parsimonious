@@ -1,6 +1,7 @@
 from textwrap import dedent
 
 from parsimonious.utils import StrAndRepr
+from collections import defaultdict
 
 
 class ParsimoniousError(Exception):
@@ -18,6 +19,7 @@ class ParseError(StrAndRepr, ParsimoniousError):
         self.text = text
         self.pos = pos
         self.expr = expr
+        self.expected = defaultdict(list)
 
     def __str__(self):
         rule_name = (("'%s'" % self.expr.name) if self.expr.name else
@@ -48,6 +50,9 @@ class ParseError(StrAndRepr, ParsimoniousError):
             return self.pos - self.text.rindex('\n', 0, self.pos)
         except (ValueError, AttributeError):
             return self.pos + 1
+
+    def get_expected(self):
+        return self.expected[self.pos]
 
 
 class LeftRecursionError(ParseError):

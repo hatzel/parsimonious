@@ -261,7 +261,10 @@ class Literal(Expression):
 
     def _uncached_match(self, text, pos, cache, error):
         if text.startswith(self.literal, pos):
-            return Node(self, text, pos, pos + len(self.literal))
+            node = Node(self, text, pos, pos + len(self.literal))
+            return node
+        else:
+            error.expected[pos].append(self)
 
     def _as_rhs(self):
         return repr(self.literal)
@@ -307,6 +310,8 @@ class Regex(Expression):
             node = RegexNode(self, text, pos, pos + span[1] - span[0])
             node.match = m  # TODO: A terrible idea for cache size?
             return node
+        else:
+            error.expected[pos].append(self)
 
     def _regex_flags_from_bits(self, bits):
         """Return the textual equivalent of numerically encoded regex flags."""
